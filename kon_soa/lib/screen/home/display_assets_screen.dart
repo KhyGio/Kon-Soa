@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../data/repository/authentication.dart';
 import '../../utils/theme.dart';
-import '../profile/profile_screen.dart';
+import 'profile_screen.dart';
 import '../widget/custom_button.dart';
 
 class AssetDisplayScreen extends StatefulWidget {
