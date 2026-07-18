@@ -9,17 +9,17 @@ class VerifyEmailScreen extends StatefulWidget {
   const VerifyEmailScreen({super.key});
 
   @override
-  State<VerifyEmailScreen> createState() => _VerifyEmailScreenState();
+  State<VerifyEmailScreen> createState() => VerifyEmailScreenState();
 }
 
-class _VerifyEmailScreenState extends State<VerifyEmailScreen> {
-  final _auth = AuthRepository();
+class VerifyEmailScreenState extends State<VerifyEmailScreen> {
+  final auth = AuthRepository();
 
 
-  Future<void> _check() async {
+  Future<void> check() async {
 
     try {
-      final verified = await _auth.isEmailVerified();
+      final verified = await auth.isEmailVerified();
 
 
       if (verified) {
@@ -46,9 +46,9 @@ class _VerifyEmailScreenState extends State<VerifyEmailScreen> {
     }
   }
 
-  Future<void> _resendEmail() async {
+  Future<void> resendEmail() async {
     try {
-      await _auth.sendVerification();
+      await auth.sendVerification();
 
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -66,8 +66,8 @@ class _VerifyEmailScreenState extends State<VerifyEmailScreen> {
     }
   }
 
-  Future<void> _backToLogin() async {
-    await _auth.logout();
+  Future<void> backToLogin() async {
+    await auth.logout();
 
     Navigator.pushReplacement(
       context,
@@ -113,12 +113,12 @@ class _VerifyEmailScreenState extends State<VerifyEmailScreen> {
 
               const SizedBox(height: 30),
 
-              CustomButton(text: "I've Verified", onPressed: _check),
+              CustomButton(text: "I've Verified", onPressed: check),
 
               const SizedBox(height: 12),
 
               TextButton(
-                onPressed: _resendEmail,
+                onPressed: resendEmail,
                 child: const Text(
                   'Resend Email',
                   style: TextStyle(color: AppTheme.primary),
@@ -126,7 +126,7 @@ class _VerifyEmailScreenState extends State<VerifyEmailScreen> {
               ),
 
               TextButton(
-                onPressed: _backToLogin,
+                onPressed: backToLogin,
                 child: const Text(
                   'Back to Login',
                   style: TextStyle(color: AppTheme.textSecondary),

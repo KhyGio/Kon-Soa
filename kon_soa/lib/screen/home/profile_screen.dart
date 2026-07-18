@@ -8,14 +8,14 @@ class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
 
   @override
-  State<ProfileScreen> createState() => _ProfileScreenState();
+  State<ProfileScreen> createState() => ProfileScreenState();
 }
 
-class _ProfileScreenState extends State<ProfileScreen> {
-  final _auth = AuthRepository();
+class ProfileScreenState extends State<ProfileScreen> {
+  final auth = AuthRepository();
 
-  String _name = '';
-  String _email = '';
+  String name = '';
+  String email = '';
 
   @override
   void initState() {
@@ -24,18 +24,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Future<void> _load() async {
-    final profile = await _auth.getProfile();
+    final profile = await auth.getProfile();
 
     if (mounted && profile != null) {
       setState(() {
-        _name = profile.fullName;
-        _email = profile.email;
+        name = profile.fullName;
+        email = profile.email;
       });
     }
   }
 
   Future<void> _logout() async {
-    await _auth.logout();
+    await auth.logout();
 
     Navigator.pushAndRemoveUntil(
       context,
@@ -84,7 +84,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               const SizedBox(height: 14),
 
               Text(
-                _name.isEmpty ? 'User' : _name,
+                name.isEmpty ? 'User' : name,
                 style: const TextStyle(
                   color: Colors.white,
                   fontSize: 20,
@@ -95,7 +95,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               const SizedBox(height: 4),
 
               Text(
-                _email,
+                email,
                 style: const TextStyle(
                   color: AppTheme.textSecondary,
                   fontSize: 13,
@@ -104,7 +104,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
               const SizedBox(height: 30),
 
-              _tile(
+              tile(
                 icon: Icons.vpn_key_outlined,
                 title: 'Change Password',
                 onTap: () {},
@@ -124,7 +124,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  Widget _tile({
+  Widget tile({
     required IconData icon,
     required String title,
     required VoidCallback onTap,

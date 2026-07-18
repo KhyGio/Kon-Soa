@@ -1,12 +1,12 @@
 import 'package:firebase_auth/firebase_auth.dart';
 
 class AuthService {
-  final FirebaseAuth _auth = FirebaseAuth.instance;
+  final FirebaseAuth auth = FirebaseAuth.instance;
 
-  User? get currentUser => _auth.currentUser;
+  User? get currentUser => auth.currentUser;
 
   Future<User?> login(String email, String password) async {
-    final result = await _auth.signInWithEmailAndPassword(
+    final result = await auth.signInWithEmailAndPassword(
       email: email,
       password: password,
     );
@@ -15,7 +15,7 @@ class AuthService {
   }
 
   Future<User?> register(String email, String masterPassword) async {
-    final result = await _auth.createUserWithEmailAndPassword(
+    final result = await auth.createUserWithEmailAndPassword(
       email: email,
       password: masterPassword,
     );
@@ -38,11 +38,11 @@ class AuthService {
   Future<bool> isEmailVerified() async {
     await currentUser?.reload();
 
-    return _auth.currentUser?.emailVerified ?? false;
+    return auth.currentUser?.emailVerified ?? false;
   }
 
   Future<void> resetPassword(String email) {
-    return _auth.sendPasswordResetEmail(email: email);
+    return auth.sendPasswordResetEmail(email: email);
   }
 
   Future<void> reAuthenticate(String email, String currentPassword) async {
@@ -61,6 +61,6 @@ class AuthService {
   }
 
   Future<void> logout() {
-    return _auth.signOut();
+    return auth.signOut();
   }
 }

@@ -18,10 +18,10 @@ class LogoScreenState extends State<LogoScreen> {
   @override
   void initState() {
     super.initState();
-    _decideNext();
+    decideNext();
   }
 
-  Future<void> _decideNext() async {
+  Future<void> decideNext() async {
     await Future.delayed(const Duration(seconds: 2));
 
     final user = _auth.currentUser;

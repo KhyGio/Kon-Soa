@@ -5,14 +5,14 @@ import '../services/authentication.dart';
 import '../services/firestore.dart';
 
 class AuthRepository {
-  final AuthService _auth = AuthService();
+  final AuthService auth = AuthService();
 
-  final FirestoreService _firestore = FirestoreService();
+  final FirestoreService firestore = FirestoreService();
 
-  User? get currentUser => _auth.currentUser;
+  User? get currentUser => auth.currentUser;
 
   Future<User?> login(String email, String password) {
-    return _auth.login(email, password);
+    return auth.login(email, password);
   }
 
   Future<User?> register(
@@ -20,10 +20,10 @@ class AuthRepository {
     String email,
     String masterPassword,
   ) async {
-    final user = await _auth.register(email, masterPassword);
+    final user = await auth.register(email, masterPassword);
 
     if (user != null) {
-      await _firestore.createUser(
+      await firestore.createUser(
         UserModel(uid: user.uid, fullName: fullName, email: email),
       );
     }
@@ -32,28 +32,28 @@ class AuthRepository {
   }
 
   Future<void> sendVerification() {
-    return _auth.sendVerification();
+    return auth.sendVerification();
   }
 
   Future<bool> isEmailVerified() {
-    return _auth.isEmailVerified();
+    return auth.isEmailVerified();
   }
 
   Future<void> resetPassword(String email) {
-    return _auth.resetPassword(email);
+    return auth.resetPassword(email);
   }
 
   Future<void> logout() {
-    return _auth.logout();
+    return auth.logout();
   }
 
   Future<UserModel?> getProfile() async {
-    final uid = _auth.currentUser?.uid;
+    final uid = auth.currentUser?.uid;
 
     if (uid == null) {
       return null;
     }
 
-    return _firestore.getUser(uid);
+    return firestore.getUser(uid);
   }
 }

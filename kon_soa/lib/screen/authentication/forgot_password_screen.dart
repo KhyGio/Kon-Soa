@@ -8,17 +8,17 @@ class ForgotPasswordScreen extends StatefulWidget {
   const ForgotPasswordScreen({super.key});
 
   @override
-  State<ForgotPasswordScreen> createState() => _ForgotPasswordScreenState();
+  State<ForgotPasswordScreen> createState() => ForgotPasswordScreenState();
 }
 
-class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
-  final _formKey = GlobalKey<FormState>();
-  final _email = TextEditingController();
-  final _auth = AuthRepository();
+class ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
+  final formKey = GlobalKey<FormState>();
+  final email = TextEditingController();
+  final auth = AuthRepository();
 
-  Future<void> _send() async {
+  Future<void> send() async {
     try {
-      await _auth.resetPassword(_email.text);
+      await auth.resetPassword(email.text);
 
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -35,7 +35,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
           backgroundColor: AppTheme.danger,
         ),
       );
-    } finally {}
+    }
   }
 
   @override
@@ -53,7 +53,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 24),
           child: Form(
-            key: _formKey,
+            key: formKey,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -75,14 +75,14 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                 CustomTextField(
                   label: 'Email',
                   hint: 'user@gmail.com',
-                  controller: _email,
+                  controller: email,
                   icon: Icons.email_outlined,
                   keyboardType: TextInputType.emailAddress,
                 ),
 
                 const SizedBox(height: 20),
 
-                CustomButton(text: 'Send Reset Link', onPressed: _send),
+                CustomButton(text: 'Send Reset Link', onPressed: send),
               ],
             ),
           ),

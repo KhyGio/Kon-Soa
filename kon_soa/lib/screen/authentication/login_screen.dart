@@ -12,24 +12,18 @@ class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
 
   @override
-  State<LoginScreen> createState() => _LoginScreenState();
+  State<LoginScreen> createState() => LoginScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> {
-  final _formKey = GlobalKey<FormState>();
+class LoginScreenState extends State<LoginScreen> {
+  final formKey = GlobalKey<FormState>();
+  final email = TextEditingController();
+  final password = TextEditingController();
+  final auth = AuthRepository();
 
-  final _email = TextEditingController();
-  final _password = TextEditingController();
-
-  final _auth = AuthRepository();
-
-
-  Future<void> _login() async {
- 
-
-
+  Future<void> login() async {
     try {
-      final user = await _auth.login(_email.text, _password.text);
+      final user = await auth.login(email.text, password.text);
 
       if (user != null && !user.emailVerified) {
         Navigator.pushReplacement(
@@ -43,12 +37,11 @@ class _LoginScreenState extends State<LoginScreen> {
         );
       }
     } catch (e) {
-      _showError();
-    } finally {
-    }
+      showError();
+    } 
   }
 
-  void _showError() {
+  void showError() {
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
         content: Text('Incorrect email or password.'),
@@ -66,7 +59,7 @@ class _LoginScreenState extends State<LoginScreen> {
           child: SingleChildScrollView(
             padding: const EdgeInsets.all(24),
             child: Form(
-              key: _formKey,
+              key: formKey,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -94,7 +87,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   CustomTextField(
                     label: 'Email Address',
                     hint: 'user@gmail.com',
-                    controller: _email,
+                    controller: email,
                     icon: Icons.email_outlined,
                     keyboardType: TextInputType.emailAddress,
                   ),
@@ -102,7 +95,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   CustomTextField(
                     label: 'Password',
                     hint: '••••••••',
-                    controller: _password,
+                    controller: password,
                     icon: Icons.lock_outline,
                     isPassword: true,
                   ),
@@ -130,11 +123,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
                   const SizedBox(height: 10),
 
-                  CustomButton(
-                    text: 'Login',
-                    onPressed: _login,
-                    
-                  ),
+                  CustomButton(text: 'Login', onPressed: login),
 
                   const SizedBox(height: 20),
 

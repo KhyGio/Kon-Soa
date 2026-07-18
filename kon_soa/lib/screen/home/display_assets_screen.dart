@@ -8,29 +8,29 @@ class AssetDisplayScreen extends StatefulWidget {
   const AssetDisplayScreen({super.key});
 
   @override
-  State<AssetDisplayScreen> createState() => _AssetDisplayScreenState();
+  State<AssetDisplayScreen> createState() => AssetDisplayScreenState();
 }
 
-class _AssetDisplayScreenState extends State<AssetDisplayScreen> {
-  final _authRepository = AuthRepository();
+class AssetDisplayScreenState extends State<AssetDisplayScreen> {
+  final authRepository = AuthRepository();
 
-  String _name = '';
-  String _email = '';
+  String name = '';
+  String email = '';
 
   @override
   void initState() {
     super.initState();
-    _loadProfile();
+    loadProfile();
   }
 
-  Future<void> _loadProfile() async {
-    final profile = await _authRepository.getProfile();
+  Future<void> loadProfile() async {
+    final profile = await authRepository.getProfile();
 
     if (profile == null) return;
 
     setState(() {
-      _name = profile.fullName;
-      _email = profile.email;
+      name = profile.fullName;
+      email = profile.email;
     });
   }
 
@@ -57,7 +57,7 @@ class _AssetDisplayScreenState extends State<AssetDisplayScreen> {
               const SizedBox(height: 20),
 
               Text(
-                'Welcome ${_name.isEmpty ? 'User' : _name}',
+                'Welcome ${name.isEmpty ? 'User' : name}',
                 textAlign: TextAlign.center,
                 style: const TextStyle(
                   color: Colors.white,
@@ -69,7 +69,7 @@ class _AssetDisplayScreenState extends State<AssetDisplayScreen> {
               const SizedBox(height: 8),
 
               Text(
-                _email,
+                email,
                 textAlign: TextAlign.center,
                 style: const TextStyle(color: AppTheme.textSecondary),
               ),

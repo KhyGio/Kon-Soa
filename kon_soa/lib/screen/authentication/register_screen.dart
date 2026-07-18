@@ -10,25 +10,25 @@ class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
 
   @override
-  State<RegisterScreen> createState() => _RegisterScreenState();
+  State<RegisterScreen> createState() => RegisterScreenState();
 }
 
-class _RegisterScreenState extends State<RegisterScreen> {
-  final _formKey = GlobalKey<FormState>();
+class RegisterScreenState extends State<RegisterScreen> {
+  final formKey = GlobalKey<FormState>();
 
-  final _name = TextEditingController();
-  final _email = TextEditingController();
-  final _password = TextEditingController();
-  final _confirm = TextEditingController();
+  final name = TextEditingController();
+  final email = TextEditingController();
+  final password = TextEditingController();
+  final confirm = TextEditingController();
 
-  final _auth = AuthRepository();
+  final auth = AuthRepository();
 
-  Future<void> _register() async {
+  Future<void> register() async {
     try {
-      await _auth.register(
-        _name.text.trim(),
-        _email.text.trim(),
-        _password.text,
+      await auth.register(
+        name.text,
+        email.text,
+        password.text,
       );
 
       Navigator.pushReplacement(
@@ -36,11 +36,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
         MaterialPageRoute(builder: (_) => const VerifyEmailScreen()),
       );
     } catch (e) {
-      _showError();
-    } finally {}
+      showError();
+    } 
   }
 
-  void _showError() {
+  void showError() {
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
         content: Text('Register Failed'),
@@ -63,7 +63,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 24),
           child: Form(
-            key: _formKey,
+            key: formKey,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -88,14 +88,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 CustomTextField(
                   label: 'Full Name',
                   hint: 'Vathana',
-                  controller: _name,
+                  controller: name,
                   icon: Icons.person_outline,
                 ),
 
                 CustomTextField(
                   label: 'Email Address',
                   hint: 'user@gmail.com',
-                  controller: _email,
+                  controller: email,
                   icon: Icons.email_outlined,
                   keyboardType: TextInputType.emailAddress,
                 ),
@@ -103,7 +103,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 CustomTextField(
                   label: 'Password',
                   hint: '••••••••',
-                  controller: _password,
+                  controller: password,
                   icon: Icons.lock_outline,
                   isPassword: true,
                 ),
@@ -111,14 +111,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 CustomTextField(
                   label: 'Confirm Password',
                   hint: '••••••••',
-                  controller: _confirm,
+                  controller: confirm,
                   icon: Icons.lock_outline,
                   isPassword: true,
                 ),
 
                 const SizedBox(height: 8),
 
-                CustomButton(text: 'Register Account', onPressed: _register),
+                CustomButton(text: 'Register Account', onPressed: register),
 
                 const SizedBox(height: 18),
 
