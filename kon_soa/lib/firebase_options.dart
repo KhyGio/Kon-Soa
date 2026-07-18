@@ -42,17 +42,14 @@ class DefaultFirebaseOptions {
     appId: '1:867029141932:android:08bd17303e81dd7789d209',
     messagingSenderId: '867029141932',
     projectId: 'konsoa',
-    databaseURL: 'https://konsoa-default-rtdb.asia-southeast1.firebasedatabase.app',
-    storageBucket: 'konsoa.firebasestorage.app',
   );
   static const FirebaseOptions ios = FirebaseOptions(
     apiKey: 'AIzaSyBDi2G2aKeGXVUUEyL_9egmpkXwx_Rj4Og',
     appId: '1:867029141932:ios:4212c800eccdae4489d209',
     messagingSenderId: '867029141932',
     projectId: 'konsoa',
-    databaseURL: 'https://konsoa-default-rtdb.asia-southeast1.firebasedatabase.app',
-    storageBucket: 'konsoa.firebasestorage.app',
-    iosClientId: '867029141932-dq2a5c9ck49641ftfpam53hauln5um83.apps.googleusercontent.com',
+    iosClientId:
+        '867029141932-dq2a5c9ck49641ftfpam53hauln5um83.apps.googleusercontent.com',
     iosBundleId: 'com.vaathanaa007.konsoa',
   );
 }
