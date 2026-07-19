@@ -1,8 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-import '../model/user_model.dart';
 import '../model/password_model.dart';
-import '../../utils/app_constants.dart';
+import '../model/user_model.dart';
 
 class FirestoreService {
   final FirebaseFirestore firestore = FirebaseFirestore.instance;
@@ -37,13 +36,14 @@ class FirestoreService {
     await userDocument(uid).delete();
   }
 
-  // Password asset collection under each user document.
-  CollectionReference<Map<String, dynamic>> _passwordsCollection(String uid) {
-    return userDocument(uid).collection(AppConstants.passwordsCollection);
+  CollectionReference<Map<String, dynamic>> passwordsCollection(String uid) {
+    return userDocument(uid).collection('passwords');
   }
 
   Stream<QuerySnapshot<Map<String, dynamic>>> passwordsStream(String uid) {
-    return _passwordsCollection(uid).snapshots();
+    return passwordsCollection(
+      uid,
+    ).orderBy('updatedAt', descending: true).snapshots();
   }
 
   Future<void> addPassword({
@@ -51,42 +51,28 @@ class FirestoreService {
     required EncryptedField encryptedTitle,
     required EncryptedField encryptedUsername,
     required EncryptedField encryptedPassword,
-    String website = '',
   }) async {
-    final docRef = _passwordsCollection(uid).doc();
+    final docRef = passwordsCollection(uid).doc();
 
     await docRef.set({
-      'encryptedTitle': encryptedTitle.cipherText,
-      'titleIv': encryptedTitle.iv,
-      'encryptedUsername': encryptedUsername.cipherText,
-      'usernameIv': encryptedUsername.iv,
+      'encryptedTitle': encryptedTitle.encrypText,
+      'titleIv': encryptedTitle.ramdomIv,
+
+      'encryptedUsername': encryptedUsername.encrypText,
+      'usernameIv': encryptedUsername.ramdomIv,
+
       'encryptionVersion': 2,
-      'website': website,
       'createdAt': FieldValue.serverTimestamp(),
+      'updatedAt': FieldValue.serverTimestamp(),
     });
 
-    // Store the secret in a private sub-collection/ document.
-    await docRef
-        .collection(AppConstants.privateCollection)
-        .doc(AppConstants.credentialDocument)
-        .set({
-          'encryptedPassword': encryptedPassword.cipherText,
-          'passwordIv': encryptedPassword.iv,
-          'encryptionVersion': 2,
-        });
-  }
+    await docRef.collection('private').doc('credential').set({
+      'encryptedPassword': encryptedPassword.encrypText,
+      'passwordIv': encryptedPassword.ramdomIv,
 
-  Future<Map<String, dynamic>?> getPasswordSecret({
-    required String uid,
-    required String assetId,
-  }) async {
-    final snap = await _passwordsCollection(uid)
-        .doc(assetId)
-        .collection(AppConstants.privateCollection)
-        .doc(AppConstants.credentialDocument)
-        .get();
-
-    return snap.exists ? snap.data() : null;
+      'encryptionVersion': 2,
+      'updatedAt': FieldValue.serverTimestamp(),
+    });
   }
 
   Future<void> updatePassword({
@@ -96,40 +82,51 @@ class FirestoreService {
     required EncryptedField encryptedUsername,
     required EncryptedField encryptedPassword,
   }) async {
-    final docRef = _passwordsCollection(uid).doc(assetId);
+    final docRef = passwordsCollection(uid).doc(assetId);
 
     await docRef.update({
-      'encryptedTitle': encryptedTitle.cipherText,
-      'titleIv': encryptedTitle.iv,
-      'encryptedUsername': encryptedUsername.cipherText,
-      'usernameIv': encryptedUsername.iv,
+      'encryptedTitle': encryptedTitle.encrypText,
+      'titleIv': encryptedTitle.ramdomIv,
+
+      'encryptedUsername': encryptedUsername.encrypText,
+      'usernameIv': encryptedUsername.ramdomIv,
+
       'encryptionVersion': 2,
       'updatedAt': FieldValue.serverTimestamp(),
     });
 
-    await docRef
-        .collection(AppConstants.privateCollection)
-        .doc(AppConstants.credentialDocument)
-        .update({
-          'encryptedPassword': encryptedPassword.cipherText,
-          'passwordIv': encryptedPassword.iv,
-          'encryptionVersion': 2,
-        });
+    await docRef.collection('private').doc('credential').set({
+      'encryptedPassword': encryptedPassword.encrypText,
+      'passwordIv': encryptedPassword.ramdomIv,
+
+      'encryptionVersion': 2,
+      'updatedAt': FieldValue.serverTimestamp(),
+    }, SetOptions(merge: true));
+  }
+
+  Future<Map<String, dynamic>?> getPasswordSecret({
+    required String uid,
+    required String assetId,
+  }) async {
+    final snapshot = await passwordsCollection(
+      uid,
+    ).doc(assetId).collection('private').doc('credential').get();
+
+    if (!snapshot.exists) {
+      return null;
+    }
+
+    return snapshot.data();
   }
 
   Future<void> deletePassword({
     required String uid,
     required String assetId,
   }) async {
-    final docRef = _passwordsCollection(uid).doc(assetId);
+    final docRef = passwordsCollection(uid).doc(assetId);
 
-    // Delete private credential document first.
-    final credRef = docRef
-        .collection(AppConstants.privateCollection)
-        .doc(AppConstants.credentialDocument);
-    await credRef.delete();
+    await docRef.collection('private').doc('credential').delete();
 
-    // Then delete the parent document.
     await docRef.delete();
   }
 }
