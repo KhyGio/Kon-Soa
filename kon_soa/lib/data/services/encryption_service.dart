@@ -1,14 +1,15 @@
 import 'package:encrypt/encrypt.dart';
-
 import '../model/password_model.dart';
-import '../../utils/app_constants.dart';
 
 class EncryptionService {
   EncryptionService._();
 
   static final EncryptionService instance = EncryptionService._();
 
-  late final Key _key = Key.fromUtf8(AppConstants.encryptionKey);
+  // 32 characters = AES-256 key
+  static const String encryptionKey = '12345678901234567890123456789012';
+
+  late final Key _key = Key.fromUtf8(encryptionKey);
 
   late final Encrypter encrypter = Encrypter(
     AES(_key, mode: AESMode.cbc, padding: 'PKCS7'),
@@ -19,40 +20,37 @@ class EncryptionService {
       throw ArgumentError('Plaintext cannot be empty.');
     }
 
-    final IV randomIv = IV.fromSecureRandom(16);
+    final randomIv = IV.fromSecureRandom(16);
 
-    final Encrypted encryptedData = encrypter.encrypt(plainText, iv: randomIv);
+    final encryptedData = encrypter.encrypt(plainText, iv: randomIv);
 
     return EncryptedField(
-      cipherText: encryptedData.base64,
-      iv: randomIv.base64,
+      encrypText: encryptedData.base64,
+      ramdomIv: randomIv.base64,
     );
   }
 
-  String decrypt({required String cipherText, required String iv}) {
-    if (cipherText.isEmpty) {
+  String decrypt({required String encrypText, required String ramdomIv}) {
+    if (encrypText.isEmpty) {
       throw const FormatException('Encrypted text is missing.');
     }
 
-    if (iv.isEmpty) {
+    if (ramdomIv.isEmpty) {
       throw const FormatException('Encryption IV is missing.');
     }
 
     try {
-      final IV storedIv = IV.fromBase64(iv);
+      final storedIv = IV.fromBase64(ramdomIv);
 
-      final String plainText = encrypter.decrypt64(cipherText, iv: storedIv);
-
-      return plainText;
-    } catch (error) {
-      throw FormatException('Unable to decrypt encrypted data: $error');
+      return encrypter.decrypt64(encrypText, iv: storedIv);
+    } catch (e) {
+      throw FormatException('Unable to decrypt encrypted data: $e');
     }
   }
 
-  bool canDecrypt({required String cipherText, required String iv}) {
+  bool canDecrypt({required String encrypText, required String ramdomIv}) {
     try {
-      decrypt(cipherText: cipherText, iv: iv);
-
+      decrypt(encrypText: encrypText, ramdomIv: ramdomIv);
       return true;
     } catch (_) {
       return false;
