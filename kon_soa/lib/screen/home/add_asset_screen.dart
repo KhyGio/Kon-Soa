@@ -39,9 +39,6 @@ class _AddPasswordScreenState extends State<AddPasswordScreen> {
         plainPassword: password.text,
       );
 
-      if (!mounted) {
-        return;
-      }
 
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -52,9 +49,7 @@ class _AddPasswordScreenState extends State<AddPasswordScreen> {
 
       Navigator.pop(context);
     } catch (error) {
-      if (!mounted) {
-        return;
-      }
+
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -62,13 +57,7 @@ class _AddPasswordScreenState extends State<AddPasswordScreen> {
           backgroundColor: AppTheme.danger,
         ),
       );
-    } finally {
-      if (mounted) {
-        setState(() {
-          loading = false;
-        });
-      }
-    }
+    } 
   }
 
   @override
