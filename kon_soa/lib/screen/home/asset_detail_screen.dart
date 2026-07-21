@@ -45,18 +45,11 @@ class _PasswordDetailScreenState extends State<PasswordDetailScreen> {
     try {
       final result = await repository.getDecryptedPassword(widget.model.id);
 
-      if (!mounted) {
-        return;
-      }
-
       setState(() {
         decryptedPassword = result;
         showPassword = true;
       });
     } catch (error) {
-      if (!mounted) {
-        return;
-      }
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -64,13 +57,7 @@ class _PasswordDetailScreenState extends State<PasswordDetailScreen> {
           backgroundColor: AppTheme.danger,
         ),
       );
-    } finally {
-      if (mounted) {
-        setState(() {
-          loadingPassword = false;
-        });
-      }
-    }
+    } 
   }
 
   Future<void> _copyPassword() async {
@@ -86,9 +73,6 @@ class _PasswordDetailScreenState extends State<PasswordDetailScreen> {
       try {
         password = await repository.getDecryptedPassword(widget.model.id);
       } catch (error) {
-        if (!mounted) {
-          return;
-        }
 
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -98,20 +82,10 @@ class _PasswordDetailScreenState extends State<PasswordDetailScreen> {
         );
 
         return;
-      } finally {
-        if (mounted) {
-          setState(() {
-            loadingPassword = false;
-          });
-        }
-      }
+      } 
     }
 
     await Clipboard.setData(ClipboardData(text: password));
-
-    if (!mounted) {
-      return;
-    }
 
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
@@ -128,10 +102,6 @@ class _PasswordDetailScreenState extends State<PasswordDetailScreen> {
         builder: (_) => EditPasswordScreen(model: widget.model),
       ),
     );
-
-    if (!mounted) {
-      return;
-    }
 
     Navigator.pop(context);
   }
@@ -171,14 +141,7 @@ class _PasswordDetailScreenState extends State<PasswordDetailScreen> {
 
     try {
       await repository.deletePassword(widget.model.id);
-
-      if (mounted) {
-        Navigator.pop(context);
-      }
     } catch (error) {
-      if (!mounted) {
-        return;
-      }
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
