@@ -16,41 +16,34 @@ class EditPasswordScreen extends StatefulWidget {
 }
 
 class _EditPasswordScreenState extends State<EditPasswordScreen> {
-  final _formKey = GlobalKey<FormState>();
+  final formKey = GlobalKey<FormState>();
 
-  late final TextEditingController _title;
-  late final TextEditingController _username;
+  late final TextEditingController title;
+  late final TextEditingController username;
 
-  final _password = TextEditingController();
+  final password = TextEditingController();
 
-  final _repository = PasswordRepository();
+  final repository = PasswordRepository();
 
-  bool _loadingPassword = true;
+  bool loadingPassword = true;
 
   @override
   void initState() {
     super.initState();
 
-    _title = TextEditingController(text: widget.model.title);
+    title = TextEditingController(text: widget.model.title);
 
-    _username = TextEditingController(text: widget.model.username);
+    username = TextEditingController(text: widget.model.username);
 
     _loadPassword();
   }
 
   Future<void> _loadPassword() async {
     try {
-      final result = await _repository.getDecryptedPassword(widget.model.id);
+      final result = await repository.getDecryptedPassword(widget.model.id);
 
-      if (!mounted) {
-        return;
-      }
-
-      _password.text = result;
+      password.text = result;
     } catch (error) {
-      if (!mounted) {
-        return;
-      }
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -60,17 +53,11 @@ class _EditPasswordScreenState extends State<EditPasswordScreen> {
       );
 
       Navigator.pop(context);
-    } finally {
-      if (mounted) {
-        setState(() {
-          _loadingPassword = false;
-        });
-      }
-    }
+    } 
   }
 
   Future<void> _update() async {
-    if (!_formKey.currentState!.validate()) {
+    if (!formKey.currentState!.validate()) {
       return;
     }
 
@@ -78,16 +65,12 @@ class _EditPasswordScreenState extends State<EditPasswordScreen> {
     });
 
     try {
-      await _repository.updatePassword(
+      await repository.updatePassword(
         id: widget.model.id,
-        title: _title.text,
-        username: _username.text,
-        plainPassword: _password.text,
+        title: title.text,
+        username: username.text,
+        plainPassword: password.text,
       );
-
-      if (!mounted) {
-        return;
-      }
 
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -98,9 +81,7 @@ class _EditPasswordScreenState extends State<EditPasswordScreen> {
 
       Navigator.pop(context);
     } catch (error) {
-      if (!mounted) {
-        return;
-      }
+
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -108,19 +89,14 @@ class _EditPasswordScreenState extends State<EditPasswordScreen> {
           backgroundColor: AppTheme.danger,
         ),
       );
-    } finally {
-      if (mounted) {
-        setState(() {
-        });
-      }
-    }
+    } 
   }
 
   @override
   void dispose() {
-    _title.dispose();
-    _username.dispose();
-    _password.dispose();
+    title.dispose();
+    username.dispose();
+    password.dispose();
     super.dispose();
   }
 
@@ -138,12 +114,12 @@ class _EditPasswordScreenState extends State<EditPasswordScreen> {
         ),
       ),
       body: SafeArea(
-        child: _loadingPassword
+        child: loadingPassword
             ? const Center(child: CircularProgressIndicator())
             : SingleChildScrollView(
                 padding: const EdgeInsets.symmetric(horizontal: 24),
                 child: Form(
-                  key: _formKey,
+                  key: formKey,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -151,19 +127,19 @@ class _EditPasswordScreenState extends State<EditPasswordScreen> {
                       CustomTextField(
                         label: 'Title / Website',
                         hint: 'Gmail, Netflix, Amazon',
-                        controller: _title,
+                        controller: title,
                         
                       ),
                       CustomTextField(
                         label: 'Username / Gmail',
                         hint: 'user@gmail.com',
-                        controller: _username,
+                        controller: username,
                        
                       ),
                       CustomTextField(
                         label: 'Password',
                         hint: '••••••••',
-                        controller: _password,
+                        controller: password,
                         isPassword: true,
                       ),
                       const SizedBox(height: 20),
