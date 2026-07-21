@@ -1,5 +1,4 @@
 import 'package:firebase_auth/firebase_auth.dart';
-
 import '../model/user_model.dart';
 import '../services/authentication.dart';
 import '../services/firestore.dart';
@@ -15,12 +14,8 @@ class AuthRepository {
     return auth.login(email, password);
   }
 
-  Future<User?> register(
-    String fullName,
-    String email,
-    String masterPassword,
-  ) async {
-    final user = await auth.register(email, masterPassword);
+  Future<User?> register(String fullName, String email, String password) async {
+    final user = await auth.register(email, password);
 
     if (user != null) {
       await firestore.createUser(
@@ -29,6 +24,10 @@ class AuthRepository {
     }
 
     return user;
+  }
+
+  Future<void> changePassword(String currentPassword, String newPassword) {
+    return auth.changePassword(currentPassword, newPassword);
   }
 
   Future<void> sendVerification() {

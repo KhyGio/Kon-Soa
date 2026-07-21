@@ -11,8 +11,8 @@ class PasswordModel {
 }
 
 class EncryptedField {
-  final String cipherText;
-  final String iv;
+  final String encrypText;
+  final String ramdomIv;
 
-  const EncryptedField({required this.cipherText, required this.iv});
+  const EncryptedField({required this.encrypText, required this.ramdomIv});
 }

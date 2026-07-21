@@ -14,10 +14,10 @@ class AuthService {
     return result.user;
   }
 
-  Future<User?> register(String email, String masterPassword) async {
+  Future<User?> register(String email, String password) async {
     final result = await auth.createUserWithEmailAndPassword(
       email: email,
-      password: masterPassword,
+      password: password,
     );
 
     await result.user?.sendEmailVerification();
@@ -58,6 +58,27 @@ class AuthService {
     );
 
     await user.reauthenticateWithCredential(credential);
+  }
+
+  Future<void> changePassword(
+    String currentPassword,
+    String newPassword,
+  ) async {
+    final user = currentUser;
+
+    if (user == null) {
+      throw StateError('No user is currently logged in.');
+    }
+
+    final email = user.email;
+
+    if (email == null) {
+      throw StateError('User email not found.');
+    }
+
+    await reAuthenticate(email, currentPassword);
+
+    await user.updatePassword(newPassword);
   }
 
   Future<void> logout() {

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:kon_soa/screen/home/change_password_screen.dart';
 import '../../data/repository/authentication.dart';
 import '../../utils/theme.dart';
 import '../authentication/login_screen.dart';
@@ -20,10 +21,10 @@ class ProfileScreenState extends State<ProfileScreen> {
   @override
   void initState() {
     super.initState();
-    _load();
+    load();
   }
 
-  Future<void> _load() async {
+  Future<void> load() async {
     final profile = await auth.getProfile();
 
     if (mounted && profile != null) {
@@ -34,7 +35,7 @@ class ProfileScreenState extends State<ProfileScreen> {
     }
   }
 
-  Future<void> _logout() async {
+  Future<void> logout() async {
     await auth.logout();
 
     Navigator.pushAndRemoveUntil(
@@ -107,7 +108,12 @@ class ProfileScreenState extends State<ProfileScreen> {
               tile(
                 icon: Icons.vpn_key_outlined,
                 title: 'Change Password',
-                onTap: () {},
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => ChangePasswordScreen()),
+                  );
+                },
               ),
 
               const SizedBox(height: 14),
@@ -115,7 +121,7 @@ class ProfileScreenState extends State<ProfileScreen> {
               CustomButton(
                 text: 'Logout',
                 color: AppTheme.danger,
-                onPressed: _logout,
+                onPressed: logout,
               ),
             ],
           ),

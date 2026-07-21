@@ -22,12 +22,16 @@ class AppTheme {
       fillColor: inputFill,
       hintStyle: const TextStyle(color: textSecondary),
       contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 16),
+
+      border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(10),
         borderSide: const BorderSide(color: AppTheme.border),
       ),
-      focusedBorder: const UnderlineInputBorder(
-        borderSide: BorderSide(color: primary, width: 2),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(10),
+        borderSide: BorderSide(color: AppTheme.primary),
       ),
     ),
   );

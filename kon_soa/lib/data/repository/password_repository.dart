@@ -10,7 +10,7 @@ class PasswordRepository {
 
   final AuthService auth = AuthService();
 
-  String get _uid {
+  String get uid {
     final uid = auth.currentUser?.uid;
 
     if (uid == null) {
@@ -21,7 +21,7 @@ class PasswordRepository {
   }
 
   Stream<List<PasswordModel>> getPasswords() {
-    return firestore.passwordsStream(_uid).map((snapshot) {
+    return firestore.passwordsStream(uid).map((snapshot) {
       final List<PasswordModel> items = [];
 
       for (final document in snapshot.docs) {
@@ -37,8 +37,6 @@ class PasswordRepository {
 
         final encryptionVersion = data['encryptionVersion'];
 
-        // Ignore documents created with the old schema
-        // or incomplete encrypted documents.
         if (encryptionVersion != 2 ||
             encryptedTitle == null ||
             encryptedTitle.isEmpty ||
@@ -53,13 +51,13 @@ class PasswordRepository {
 
         try {
           final decryptedTitle = encryption.decrypt(
-            cipherText: encryptedTitle,
-            iv: titleIv,
+            encrypText: encryptedTitle,
+            ramdomIv: titleIv,
           );
 
           final decryptedUsername = encryption.decrypt(
-            cipherText: encryptedUsername,
-            iv: usernameIv,
+            encrypText: encryptedUsername,
+            ramdomIv: usernameIv,
           );
 
           items.add(
@@ -70,9 +68,6 @@ class PasswordRepository {
             ),
           );
         } catch (_) {
-          // Ignore an individual corrupted or
-          // incompatible asset without breaking
-          // the complete home-screen stream.
           continue;
         }
       }
@@ -85,31 +80,27 @@ class PasswordRepository {
     required String title,
     required String username,
     required String plainPassword,
-    String website = '',
   }) async {
-    final cleanTitle = title;
-    final cleanUsername = username;
-
-    if (cleanTitle.isEmpty) {
+    if (title.isEmpty) {
       throw ArgumentError('Title is required.');
     }
 
-    if (cleanUsername.isEmpty) {
-      throw ArgumentError('Gmail or username is required.');
+    if (username.isEmpty) {
+      throw ArgumentError('Username is required.');
     }
 
     if (plainPassword.isEmpty) {
       throw ArgumentError('Password is required.');
     }
 
-    final encryptedTitle = encryption.encrypt(cleanTitle);
+    final encryptedTitle = encryption.encrypt(title);
 
-    final encryptedUsername = encryption.encrypt(cleanUsername);
+    final encryptedUsername = encryption.encrypt(username);
 
     final encryptedPassword = encryption.encrypt(plainPassword);
 
     await firestore.addPassword(
-      uid: _uid,
+      uid: uid,
       encryptedTitle: encryptedTitle,
       encryptedUsername: encryptedUsername,
       encryptedPassword: encryptedPassword,
@@ -122,12 +113,12 @@ class PasswordRepository {
     }
 
     final secret = await firestore.getPasswordSecret(
-      uid: _uid,
+      uid: uid,
       assetId: assetId,
     );
 
     if (secret == null) {
-      throw StateError('Password credential document was not found.');
+      throw StateError('Password not found.');
     }
 
     final encryptedPassword = secret['encryptedPassword'] as String?;
@@ -142,7 +133,10 @@ class PasswordRepository {
       throw const FormatException('Password IV is missing.');
     }
 
-    return encryption.decrypt(cipherText: encryptedPassword, iv: passwordIv);
+    return encryption.decrypt(
+      encrypText: encryptedPassword,
+      ramdomIv: passwordIv,
+    );
   }
 
   Future<void> updatePassword({
@@ -151,33 +145,30 @@ class PasswordRepository {
     required String username,
     required String plainPassword,
   }) async {
-    final cleanTitle = title.trim();
-    final cleanUsername = username.trim();
-
     if (id.isEmpty) {
       throw ArgumentError('Asset ID is missing.');
     }
 
-    if (cleanTitle.isEmpty) {
+    if (title.isEmpty) {
       throw ArgumentError('Title is required.');
     }
 
-    if (cleanUsername.isEmpty) {
-      throw ArgumentError('Gmail or username is required.');
+    if (username.isEmpty) {
+      throw ArgumentError('Username is required.');
     }
 
     if (plainPassword.isEmpty) {
       throw ArgumentError('Password is required.');
     }
 
-    final encryptedTitle = encryption.encrypt(cleanTitle);
+    final encryptedTitle = encryption.encrypt(title);
 
-    final encryptedUsername = encryption.encrypt(cleanUsername);
+    final encryptedUsername = encryption.encrypt(username);
 
     final encryptedPassword = encryption.encrypt(plainPassword);
 
     await firestore.updatePassword(
-      uid: _uid,
+      uid: uid,
       assetId: id,
       encryptedTitle: encryptedTitle,
       encryptedUsername: encryptedUsername,
@@ -185,11 +176,11 @@ class PasswordRepository {
     );
   }
 
-  Future<void> deletePassword(String id) {
+  Future<void> deletePassword(String id) async {
     if (id.isEmpty) {
       throw ArgumentError('Asset ID is missing.');
     }
 
-    return firestore.deletePassword(uid: _uid, assetId: id);
+    await firestore.deletePassword(uid: uid, assetId: id);
   }
 }

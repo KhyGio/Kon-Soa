@@ -38,7 +38,7 @@ class LoginScreenState extends State<LoginScreen> {
       }
     } catch (e) {
       showError();
-    } 
+    }
   }
 
   void showError() {
