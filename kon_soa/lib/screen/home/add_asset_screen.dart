@@ -1,44 +1,37 @@
 import 'package:flutter/material.dart';
-
 import '../../data/repository/password_repository.dart';
 import '../../utils/theme.dart';
 import '../widget/custom_button.dart';
 import '../widget/custom_textfield.dart';
 
-class AddPasswordScreen extends StatefulWidget {
-  const AddPasswordScreen({super.key});
+class AddAssetScreen extends StatefulWidget {
+  const AddAssetScreen({super.key});
 
   @override
-  State<AddPasswordScreen> createState() => _AddPasswordScreenState();
+  State<AddAssetScreen> createState() => AddAssetScreenState();
 }
 
-class _AddPasswordScreenState extends State<AddPasswordScreen> {
+class AddAssetScreenState extends State<AddAssetScreen> {
   final formKey = GlobalKey<FormState>();
 
   final title = TextEditingController();
   final username = TextEditingController();
   final password = TextEditingController();
-
   final repository = PasswordRepository();
 
   bool loading = false;
 
-  Future<void> _save() async {
-    if (!formKey.currentState!.validate()) {
-      return;
-    }
-
+  Future<void> save() async {
     setState(() {
       loading = true;
     });
 
     try {
-      await repository.addPassword(
+      await repository.addAsset(
         title: title.text,
         username: username.text,
         plainPassword: password.text,
       );
-
 
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -49,23 +42,17 @@ class _AddPasswordScreenState extends State<AddPasswordScreen> {
 
       Navigator.pop(context);
     } catch (error) {
-
-
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Failed to save asset: $error'),
           backgroundColor: AppTheme.danger,
         ),
       );
-    } 
-  }
 
-  @override
-  void dispose() {
-    title.dispose();
-    username.dispose();
-   password.dispose();
-    super.dispose();
+      setState(() {
+        loading = false;
+      });
+    }
   }
 
   @override
@@ -77,7 +64,7 @@ class _AddPasswordScreenState extends State<AddPasswordScreen> {
         centerTitle: true,
         leading: const BackButton(color: Colors.white),
         title: const Text(
-          'Add Password',
+          'Add Asset',
           style: TextStyle(color: Colors.white, fontSize: 16),
         ),
       ),
@@ -94,28 +81,21 @@ class _AddPasswordScreenState extends State<AddPasswordScreen> {
                   label: 'Title / Website',
                   hint: 'Gmail, Netflix, Amazon',
                   controller: title,
-                  
                 ),
                 CustomTextField(
                   label: 'Username / Gmail',
                   hint: 'user@gmail.com',
                   controller: username,
                   keyboardType: TextInputType.emailAddress,
-                  
                 ),
                 CustomTextField(
                   label: 'Password',
                   hint: '••••••••',
                   controller: password,
                   isPassword: true,
-                  
                 ),
                 const SizedBox(height: 20),
-                CustomButton(
-                  text: 'Save Password',
-                  onPressed: _save,
-                  
-                ),
+                CustomButton(text: 'Save Asset', onPressed: save),
               ],
             ),
           ),

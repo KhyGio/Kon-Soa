@@ -25,7 +25,7 @@ class VerifyEmailScreenState extends State<VerifyEmailScreen> {
       if (verified) {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (_) => const AssetDisplayScreen()),
+          MaterialPageRoute(builder: (_) => const DisplayAssetsScreen()),
         );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(

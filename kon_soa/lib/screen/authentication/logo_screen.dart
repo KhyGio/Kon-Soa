@@ -39,7 +39,7 @@ class LogoScreenState extends State<LogoScreen> {
     } else {
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (_) => const AssetDisplayScreen()),
+        MaterialPageRoute(builder: (_) => const DisplayAssetsScreen()),
       );
     }
   }

@@ -6,16 +6,16 @@ import '../../utils/theme.dart';
 import '../widget/custom_button.dart';
 import '../widget/custom_textfield.dart';
 
-class EditPasswordScreen extends StatefulWidget {
+class EditAssetScreen extends StatefulWidget {
   final PasswordModel model;
 
-  const EditPasswordScreen({super.key, required this.model});
+  const EditAssetScreen({super.key, required this.model});
 
   @override
-  State<EditPasswordScreen> createState() => _EditPasswordScreenState();
+  State<EditAssetScreen> createState() => EditAssetScreenState();
 }
 
-class _EditPasswordScreenState extends State<EditPasswordScreen> {
+class EditAssetScreenState extends State<EditAssetScreen> {
   final formKey = GlobalKey<FormState>();
 
   late final TextEditingController title;
@@ -35,15 +35,21 @@ class _EditPasswordScreenState extends State<EditPasswordScreen> {
 
     username = TextEditingController(text: widget.model.username);
 
-    _loadPassword();
+    loadPassword();
   }
 
-  Future<void> _loadPassword() async {
+  Future<void> loadPassword() async {
     try {
       final result = await repository.getDecryptedPassword(widget.model.id);
 
-      password.text = result;
+      setState(() {
+        password.text = result;
+        loadingPassword = false;
+      });
     } catch (error) {
+      setState(() {
+        loadingPassword = false;
+      });
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -53,17 +59,10 @@ class _EditPasswordScreenState extends State<EditPasswordScreen> {
       );
 
       Navigator.pop(context);
-    } 
+    }
   }
 
-  Future<void> _update() async {
-    if (!formKey.currentState!.validate()) {
-      return;
-    }
-
-    setState(() {
-    });
-
+  Future<void> update() async {
     try {
       await repository.updatePassword(
         id: widget.model.id,
@@ -81,23 +80,13 @@ class _EditPasswordScreenState extends State<EditPasswordScreen> {
 
       Navigator.pop(context);
     } catch (error) {
-
-
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Failed to update asset: $error'),
           backgroundColor: AppTheme.danger,
         ),
       );
-    } 
-  }
-
-  @override
-  void dispose() {
-    title.dispose();
-    username.dispose();
-    password.dispose();
-    super.dispose();
+    }
   }
 
   @override
@@ -109,7 +98,7 @@ class _EditPasswordScreenState extends State<EditPasswordScreen> {
         centerTitle: true,
         leading: const BackButton(color: Colors.white),
         title: const Text(
-          'Edit Password',
+          'Edit Asset',
           style: TextStyle(color: Colors.white, fontSize: 16),
         ),
       ),
@@ -128,13 +117,11 @@ class _EditPasswordScreenState extends State<EditPasswordScreen> {
                         label: 'Title / Website',
                         hint: 'Gmail, Netflix, Amazon',
                         controller: title,
-                        
                       ),
                       CustomTextField(
                         label: 'Username / Gmail',
                         hint: 'user@gmail.com',
                         controller: username,
-                       
                       ),
                       CustomTextField(
                         label: 'Password',
@@ -143,10 +130,7 @@ class _EditPasswordScreenState extends State<EditPasswordScreen> {
                         isPassword: true,
                       ),
                       const SizedBox(height: 20),
-                      CustomButton(
-                        text: 'Update Password',
-                        onPressed: _update,
-                      ),
+                      CustomButton(text: 'Update Asset', onPressed: update),
                     ],
                   ),
                 ),

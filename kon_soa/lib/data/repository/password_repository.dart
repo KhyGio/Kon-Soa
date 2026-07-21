@@ -76,7 +76,7 @@ class PasswordRepository {
     });
   }
 
-  Future<void> addPassword({
+  Future<void> addAsset({
     required String title,
     required String username,
     required String plainPassword,

@@ -33,7 +33,7 @@ class LoginScreenState extends State<LoginScreen> {
       } else {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (_) => const AssetDisplayScreen()),
+          MaterialPageRoute(builder: (_) => const DisplayAssetsScreen()),
         );
       }
     } catch (e) {

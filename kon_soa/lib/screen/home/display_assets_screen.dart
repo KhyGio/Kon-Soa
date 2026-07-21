@@ -1,101 +1,213 @@
 import 'package:flutter/material.dart';
-import '../../data/repository/authentication.dart';
-import '../../utils/theme.dart';
-import 'profile_screen.dart';
-import '../widget/custom_button.dart';
+import 'package:kon_soa/data/model/password_model.dart';
+import 'package:kon_soa/data/repository/authentication.dart';
+import 'package:kon_soa/data/repository/password_repository.dart';
+import 'package:kon_soa/screen/home/add_asset_screen.dart';
+import 'package:kon_soa/screen/home/asset_detail_screen.dart';
+import 'package:kon_soa/screen/home/profile_screen.dart';
+import 'package:kon_soa/utils/theme.dart';
 
-class AssetDisplayScreen extends StatefulWidget {
-  const AssetDisplayScreen({super.key});
+class DisplayAssetsScreen extends StatefulWidget {
+  const DisplayAssetsScreen({super.key});
 
   @override
-  State<AssetDisplayScreen> createState() => AssetDisplayScreenState();
+  State<DisplayAssetsScreen> createState() => AssetDisplayScreenState();
 }
 
-class AssetDisplayScreenState extends State<AssetDisplayScreen> {
-  final authRepository = AuthRepository();
+class AssetDisplayScreenState extends State<DisplayAssetsScreen> {
+  final PasswordRepository passwordRepository = PasswordRepository();
+
+  final AuthRepository authRepository = AuthRepository();
 
   String name = '';
-  String email = '';
 
   @override
   void initState() {
     super.initState();
-    loadProfile();
+    loadName();
   }
 
-  Future<void> loadProfile() async {
+  Future<void> loadName() async {
     final profile = await authRepository.getProfile();
-
     if (profile == null) return;
-
     setState(() {
       name = profile.fullName;
-      email = profile.email;
     });
+  }
+
+  void openDetails(PasswordModel model) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => AssetDetailScreen(model: model)),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppTheme.background,
-      appBar: AppBar(
-        backgroundColor: AppTheme.backgroundGradientTop,
-        title: const Text(
-          'Kon-Soa',
-          style: TextStyle(color: Colors.white, fontSize: 16),
-        ),
-        centerTitle: true,
-      ),
-      body: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Icon(Icons.lock_outline, size: 80, color: AppTheme.primary),
-
-              const SizedBox(height: 20),
-
-              Text(
-                'Welcome ${name.isEmpty ? 'User' : name}',
-                textAlign: TextAlign.center,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 22,
-                  fontWeight: FontWeight.bold,
-                ),
+      body: SafeArea(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 16, 20, 12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'Welcome',
+                    style: TextStyle(
+                      color: AppTheme.textSecondary,
+                      fontSize: 13,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    name.isEmpty ? 'User' : name,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
               ),
+            ),
 
-              const SizedBox(height: 8),
+            Expanded(
+              child: StreamBuilder<List<PasswordModel>>(
+                stream: passwordRepository.getPasswords(),
+                builder: (context, snapshot) {
+                  if (snapshot.hasError) {
+                    return Center(
+                      child: Padding(
+                        padding: const EdgeInsets.all(20),
+                        child: Text(
+                          snapshot.error.toString(),
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(color: Colors.red),
+                        ),
+                      ),
+                    );
+                  }
 
-              Text(
-                email,
-                textAlign: TextAlign.center,
-                style: const TextStyle(color: AppTheme.textSecondary),
-              ),
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
 
-              const SizedBox(height: 20),
+                  final items = snapshot.data ?? [];
 
-              const Text(
-                'Authentication setup completed successfully.',
-                textAlign: TextAlign.center,
-                style: TextStyle(color: AppTheme.textSecondary),
-              ),
+                  if (items.isEmpty) {
+                    return const Center(
+                      child: Text(
+                        'No assets found',
+                        style: TextStyle(color: AppTheme.textSecondary),
+                      ),
+                    );
+                  }
 
-              const SizedBox(height: 30),
+                  return ListView.builder(
+                    padding: const EdgeInsets.fromLTRB(16, 0, 16, 100),
+                    itemCount: items.length,
+                    itemBuilder: (context, index) {
+                      final model = items[index];
 
-              CustomButton(
-                text: 'Profile',
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (_) => const ProfileScreen()),
+                      return Card(
+                        color: AppTheme.card,
+                        margin: const EdgeInsets.only(bottom: 12),
+                        child: ListTile(
+                          title: Text(
+                            model.title,
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          subtitle: Text(
+                            model.username,
+                            style: const TextStyle(
+                              color: AppTheme.textSecondary,
+                            ),
+                          ),
+                          trailing: const Icon(
+                            Icons.arrow_forward_ios,
+                            color: Colors.white54,
+                            size: 16,
+                          ),
+                          onTap: () => openDetails(model),
+                        ),
+                      );
+                    },
                   );
                 },
               ),
-            ],
-          ),
+            ),
+          ],
         ),
+      ),
+      bottomNavigationBar: BottomNav(
+        current: 0,
+        onAdd: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const AddAssetScreen()),
+          );
+        },
+        onProfile: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const ProfileScreen()),
+          );
+        },
+      ),
+    );
+  }
+}
+
+class BottomNav extends StatelessWidget {
+  final int current;
+  final VoidCallback onAdd;
+  final VoidCallback onProfile;
+
+  const BottomNav({
+    required this.current,
+    required this.onAdd,
+    required this.onProfile,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.only(top: 10, bottom: 20),
+      decoration: const BoxDecoration(
+        color: AppTheme.card,
+        border: Border(top: BorderSide(color: AppTheme.border)),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: [
+          navItem(Icons.home, 'Home', current == 0, () {}),
+          navItem(Icons.add_circle_outline, 'Add', false, onAdd),
+          navItem(Icons.person_outline, 'Profile', false, onProfile),
+        ],
+      ),
+    );
+  }
+
+  Widget navItem(IconData icon, String label, bool active, VoidCallback onTap) {
+    final color = active ? AppTheme.primary : AppTheme.textSecondary;
+
+    return GestureDetector(
+      onTap: onTap,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, color: color, size: 22),
+          const SizedBox(height: 4),
+          Text(label, style: TextStyle(color: color, fontSize: 12)),
+        ],
       ),
     );
   }

@@ -1,22 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-
 import '../../data/model/password_model.dart';
 import '../../data/repository/password_repository.dart';
 import '../../utils/theme.dart';
 import '../widget/custom_button.dart';
 import 'edit_asset_screen.dart';
 
-class PasswordDetailScreen extends StatefulWidget {
+class AssetDetailScreen extends StatefulWidget {
   final PasswordModel model;
 
-  const PasswordDetailScreen({super.key, required this.model});
+  const AssetDetailScreen({super.key, required this.model});
 
   @override
-  State<PasswordDetailScreen> createState() => _PasswordDetailScreenState();
+  State<AssetDetailScreen> createState() => AssetDetailScreenState();
 }
 
-class _PasswordDetailScreenState extends State<PasswordDetailScreen> {
+class AssetDetailScreenState extends State<AssetDetailScreen> {
   final repository = PasswordRepository();
 
   bool showPassword = false;
@@ -24,7 +23,7 @@ class _PasswordDetailScreenState extends State<PasswordDetailScreen> {
 
   String? decryptedPassword;
 
-  Future<void> _togglePassword() async {
+  Future<void> togglePassword() async {
     if (loadingPassword) {
       return;
     }
@@ -48,8 +47,14 @@ class _PasswordDetailScreenState extends State<PasswordDetailScreen> {
       setState(() {
         decryptedPassword = result;
         showPassword = true;
+        loadingPassword = false;
       });
     } catch (error) {
+      if (!mounted) return;
+
+      setState(() {
+        loadingPassword = false;
+      });
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -57,10 +62,10 @@ class _PasswordDetailScreenState extends State<PasswordDetailScreen> {
           backgroundColor: AppTheme.danger,
         ),
       );
-    } 
+    }
   }
 
-  Future<void> _copyPassword() async {
+  Future<void> copyPassword() async {
     String password;
 
     if (decryptedPassword != null) {
@@ -72,7 +77,16 @@ class _PasswordDetailScreenState extends State<PasswordDetailScreen> {
 
       try {
         password = await repository.getDecryptedPassword(widget.model.id);
+
+        if (!mounted) return;
+
+        setState(() {
+          loadingPassword = false;
+        });
       } catch (error) {
+        setState(() {
+          loadingPassword = false;
+        });
 
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -82,7 +96,7 @@ class _PasswordDetailScreenState extends State<PasswordDetailScreen> {
         );
 
         return;
-      } 
+      }
     }
 
     await Clipboard.setData(ClipboardData(text: password));
@@ -95,18 +109,18 @@ class _PasswordDetailScreenState extends State<PasswordDetailScreen> {
     );
   }
 
-  Future<void> _openEdit() async {
+  Future<void> openEdit() async {
     await Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (_) => EditPasswordScreen(model: widget.model),
+        builder: (_) => EditAssetScreen(model: widget.model),
       ),
     );
 
     Navigator.pop(context);
   }
 
-  Future<void> _delete() async {
+  Future<void> delete() async {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (_) => AlertDialog(
@@ -142,7 +156,6 @@ class _PasswordDetailScreenState extends State<PasswordDetailScreen> {
     try {
       await repository.deletePassword(widget.model.id);
     } catch (error) {
-
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Unable to delete asset: $error'),
@@ -150,12 +163,6 @@ class _PasswordDetailScreenState extends State<PasswordDetailScreen> {
         ),
       );
     }
-  }
-
-  @override
-  void dispose() {
-    decryptedPassword = null;
-    super.dispose();
   }
 
   @override
@@ -200,9 +207,9 @@ class _PasswordDetailScreenState extends State<PasswordDetailScreen> {
                 ),
               ),
               const SizedBox(height: 26),
-              _field('Username / Gmail', widget.model.username),
+              field('Username / Gmail', widget.model.username),
               const SizedBox(height: 16),
-              _passwordField(),
+              passwordField(),
               const SizedBox(height: 30),
               Row(
                 children: [
@@ -210,7 +217,7 @@ class _PasswordDetailScreenState extends State<PasswordDetailScreen> {
                     child: CustomButton(
                       text: 'Edit',
                       color: AppTheme.card,
-                      onPressed: _openEdit,
+                      onPressed: openEdit,
                     ),
                   ),
                   const SizedBox(width: 14),
@@ -218,7 +225,7 @@ class _PasswordDetailScreenState extends State<PasswordDetailScreen> {
                     child: CustomButton(
                       text: 'Delete',
                       color: AppTheme.danger,
-                      onPressed: _delete,
+                      onPressed: delete,
                     ),
                   ),
                 ],
@@ -230,7 +237,7 @@ class _PasswordDetailScreenState extends State<PasswordDetailScreen> {
     );
   }
 
-  Widget _field(String label, String value) {
+  Widget field(String label, String value) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(14),
@@ -244,10 +251,7 @@ class _PasswordDetailScreenState extends State<PasswordDetailScreen> {
         children: [
           Text(
             label,
-            style: const TextStyle(
-              color: AppTheme.textSecondary,
-              fontSize: 12,
-            ),
+            style: const TextStyle(color: AppTheme.textSecondary, fontSize: 12),
           ),
           const SizedBox(height: 4),
           Text(
@@ -259,10 +263,8 @@ class _PasswordDetailScreenState extends State<PasswordDetailScreen> {
     );
   }
 
-  Widget _passwordField() {
-    final displayValue = showPassword
-        ? (decryptedPassword ?? '')
-        : '••••••••';
+  Widget passwordField() {
+    final displayValue = showPassword ? (decryptedPassword ?? '') : '••••••••';
 
     return Container(
       width: double.infinity,
@@ -301,7 +303,7 @@ class _PasswordDetailScreenState extends State<PasswordDetailScreen> {
                 )
               else
                 IconButton(
-                  onPressed: _togglePassword,
+                  onPressed: togglePassword,
                   icon: Icon(
                     showPassword
                         ? Icons.visibility_off_outlined
@@ -311,7 +313,7 @@ class _PasswordDetailScreenState extends State<PasswordDetailScreen> {
                   ),
                 ),
               IconButton(
-                onPressed: loadingPassword ? null : _copyPassword,
+                onPressed: loadingPassword ? null : copyPassword,
                 icon: const Icon(
                   Icons.copy_outlined,
                   color: AppTheme.textSecondary,

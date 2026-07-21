@@ -41,9 +41,7 @@ class FirestoreService {
   }
 
   Stream<QuerySnapshot<Map<String, dynamic>>> passwordsStream(String uid) {
-    return passwordsCollection(
-      uid,
-    ).orderBy('updatedAt', descending: true).snapshots();
+    return passwordsCollection(uid).snapshots();
   }
 
   Future<void> addPassword({
@@ -52,26 +50,17 @@ class FirestoreService {
     required EncryptedField encryptedUsername,
     required EncryptedField encryptedPassword,
   }) async {
-    final docRef = passwordsCollection(uid).doc();
-
-    await docRef.set({
+    await passwordsCollection(uid).add({
       'encryptedTitle': encryptedTitle.encrypText,
       'titleIv': encryptedTitle.ramdomIv,
 
       'encryptedUsername': encryptedUsername.encrypText,
       'usernameIv': encryptedUsername.ramdomIv,
 
-      'encryptionVersion': 2,
-      'createdAt': FieldValue.serverTimestamp(),
-      'updatedAt': FieldValue.serverTimestamp(),
-    });
-
-    await docRef.collection('private').doc('credential').set({
       'encryptedPassword': encryptedPassword.encrypText,
       'passwordIv': encryptedPassword.ramdomIv,
 
       'encryptionVersion': 2,
-      'updatedAt': FieldValue.serverTimestamp(),
     });
   }
 
@@ -82,35 +71,25 @@ class FirestoreService {
     required EncryptedField encryptedUsername,
     required EncryptedField encryptedPassword,
   }) async {
-    final docRef = passwordsCollection(uid).doc(assetId);
-
-    await docRef.update({
+    await passwordsCollection(uid).doc(assetId).update({
       'encryptedTitle': encryptedTitle.encrypText,
       'titleIv': encryptedTitle.ramdomIv,
 
       'encryptedUsername': encryptedUsername.encrypText,
       'usernameIv': encryptedUsername.ramdomIv,
 
-      'encryptionVersion': 2,
-      'updatedAt': FieldValue.serverTimestamp(),
-    });
-
-    await docRef.collection('private').doc('credential').set({
       'encryptedPassword': encryptedPassword.encrypText,
       'passwordIv': encryptedPassword.ramdomIv,
 
       'encryptionVersion': 2,
-      'updatedAt': FieldValue.serverTimestamp(),
-    }, SetOptions(merge: true));
+    });
   }
 
   Future<Map<String, dynamic>?> getPasswordSecret({
     required String uid,
     required String assetId,
   }) async {
-    final snapshot = await passwordsCollection(
-      uid,
-    ).doc(assetId).collection('private').doc('credential').get();
+    final snapshot = await passwordsCollection(uid).doc(assetId).get();
 
     if (!snapshot.exists) {
       return null;
@@ -123,10 +102,6 @@ class FirestoreService {
     required String uid,
     required String assetId,
   }) async {
-    final docRef = passwordsCollection(uid).doc(assetId);
-
-    await docRef.collection('private').doc('credential').delete();
-
-    await docRef.delete();
+    await passwordsCollection(uid).doc(assetId).delete();
   }
 }
