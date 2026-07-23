@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:kon_soa/data/model/password_model.dart';
+import 'package:kon_soa/data/model/asset_model.dart';
 import 'package:kon_soa/data/repository/authentication.dart';
-import 'package:kon_soa/data/repository/password_repository.dart';
+import 'package:kon_soa/data/repository/asset_repository.dart';
 import 'package:kon_soa/screen/home/add_asset_screen.dart';
 import 'package:kon_soa/screen/home/asset_detail_screen.dart';
 import 'package:kon_soa/screen/home/profile_screen.dart';
@@ -35,7 +35,7 @@ class AssetDisplayScreenState extends State<DisplayAssetsScreen> {
     });
   }
 
-  void openDetails(PasswordModel model) {
+  void openDetails(AssetModel model) {
     Navigator.push(
       context,
       MaterialPageRoute(builder: (_) => AssetDetailScreen(model: model)),
@@ -77,8 +77,8 @@ class AssetDisplayScreenState extends State<DisplayAssetsScreen> {
             ),
 
             Expanded(
-              child: StreamBuilder<List<PasswordModel>>(
-                stream: passwordRepository.getPasswords(),
+              child: StreamBuilder<List<AssetModel>>(
+                stream: passwordRepository.getAssets(),
                 builder: (context, snapshot) {
                   if (snapshot.hasError) {
                     return Center(

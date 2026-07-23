@@ -1,9 +1,9 @@
-class PasswordModel {
+class AssetModel {
   final String id;
   final String title;
   final String username;
 
-  const PasswordModel({
+  const AssetModel({
     required this.id,
     required this.title,
     required this.username,

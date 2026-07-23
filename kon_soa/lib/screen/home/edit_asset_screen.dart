@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 
-import '../../data/model/password_model.dart';
-import '../../data/repository/password_repository.dart';
+import '../../data/model/asset_model.dart';
+import '../../data/repository/asset_repository.dart';
 import '../../utils/theme.dart';
 import '../widget/custom_button.dart';
 import '../widget/custom_textfield.dart';
 
 class EditAssetScreen extends StatefulWidget {
-  final PasswordModel model;
+  final AssetModel model;
 
   const EditAssetScreen({super.key, required this.model});
 
@@ -40,7 +40,7 @@ class EditAssetScreenState extends State<EditAssetScreen> {
 
   Future<void> loadPassword() async {
     try {
-      final result = await repository.getDecryptedPassword(widget.model.id);
+      final result = await repository.getAssetPassword(widget.model.id);
 
       setState(() {
         password.text = result;
@@ -64,7 +64,7 @@ class EditAssetScreenState extends State<EditAssetScreen> {
 
   Future<void> update() async {
     try {
-      await repository.updatePassword(
+      await repository.updateAsset(
         id: widget.model.id,
         title: title.text,
         username: username.text,

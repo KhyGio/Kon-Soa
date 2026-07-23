@@ -1,5 +1,5 @@
 import 'package:encrypt/encrypt.dart';
-import '../model/password_model.dart';
+import '../model/asset_model.dart';
 
 class EncryptionService {
   EncryptionService._();

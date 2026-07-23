@@ -1,13 +1,11 @@
-import '../model/password_model.dart';
+import '../model/asset_model.dart';
 import '../services/authentication.dart';
 import '../services/encryption_service.dart';
 import '../services/firestore.dart';
 
 class PasswordRepository {
   final FirestoreService firestore = FirestoreService();
-
   final EncryptionService encryption = EncryptionService.instance;
-
   final AuthService auth = AuthService();
 
   String get uid {
@@ -20,25 +18,20 @@ class PasswordRepository {
     return uid;
   }
 
-  Stream<List<PasswordModel>> getPasswords() {
-    return firestore.passwordsStream(uid).map((snapshot) {
-      final List<PasswordModel> items = [];
+  Stream<List<AssetModel>> getAssets() {
+    return firestore.assetsStream(uid).map((snapshot) {
+      final List<AssetModel> items = [];
 
       for (final document in snapshot.docs) {
         final data = document.data();
 
         final encryptedTitle = data['encryptedTitle'] as String?;
-
         final titleIv = data['titleIv'] as String?;
 
         final encryptedUsername = data['encryptedUsername'] as String?;
-
         final usernameIv = data['usernameIv'] as String?;
 
-        final encryptionVersion = data['encryptionVersion'];
-
-        if (encryptionVersion != 2 ||
-            encryptedTitle == null ||
+        if (encryptedTitle == null ||
             encryptedTitle.isEmpty ||
             titleIv == null ||
             titleIv.isEmpty ||
@@ -61,7 +54,7 @@ class PasswordRepository {
           );
 
           items.add(
-            PasswordModel(
+            AssetModel(
               id: document.id,
               title: decryptedTitle,
               username: decryptedUsername,
@@ -94,12 +87,10 @@ class PasswordRepository {
     }
 
     final encryptedTitle = encryption.encrypt(title);
-
     final encryptedUsername = encryption.encrypt(username);
-
     final encryptedPassword = encryption.encrypt(plainPassword);
 
-    await firestore.addPassword(
+    await firestore.addAsset(
       uid: uid,
       encryptedTitle: encryptedTitle,
       encryptedUsername: encryptedUsername,
@@ -107,22 +98,21 @@ class PasswordRepository {
     );
   }
 
-  Future<String> getDecryptedPassword(String assetId) async {
+  Future<String> getAssetPassword(String assetId) async {
     if (assetId.isEmpty) {
       throw ArgumentError('Asset ID is missing.');
     }
 
-    final secret = await firestore.getPasswordSecret(
+    final secret = await firestore.getAssetSecret(
       uid: uid,
       assetId: assetId,
     );
 
     if (secret == null) {
-      throw StateError('Password not found.');
+      throw StateError('Asset not found.');
     }
 
     final encryptedPassword = secret['encryptedPassword'] as String?;
-
     final passwordIv = secret['passwordIv'] as String?;
 
     if (encryptedPassword == null || encryptedPassword.isEmpty) {
@@ -139,7 +129,7 @@ class PasswordRepository {
     );
   }
 
-  Future<void> updatePassword({
+  Future<void> updateAsset({
     required String id,
     required String title,
     required String username,
@@ -162,12 +152,10 @@ class PasswordRepository {
     }
 
     final encryptedTitle = encryption.encrypt(title);
-
     final encryptedUsername = encryption.encrypt(username);
-
     final encryptedPassword = encryption.encrypt(plainPassword);
 
-    await firestore.updatePassword(
+    await firestore.updateAsset(
       uid: uid,
       assetId: id,
       encryptedTitle: encryptedTitle,
@@ -176,11 +164,14 @@ class PasswordRepository {
     );
   }
 
-  Future<void> deletePassword(String id) async {
+  Future<void> deleteAsset(String id) async {
     if (id.isEmpty) {
       throw ArgumentError('Asset ID is missing.');
     }
 
-    await firestore.deletePassword(uid: uid, assetId: id);
+    await firestore.deleteAsset(
+      uid: uid,
+      assetId: id,
+    );
   }
 }

@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-import '../model/password_model.dart';
+import '../model/asset_model.dart';
 import '../model/user_model.dart';
 
 class FirestoreService {
@@ -36,21 +36,21 @@ class FirestoreService {
     await userDocument(uid).delete();
   }
 
-  CollectionReference<Map<String, dynamic>> passwordsCollection(String uid) {
-    return userDocument(uid).collection('passwords');
+  CollectionReference<Map<String, dynamic>> assetsCollection(String uid) {
+    return userDocument(uid).collection('assets');
   }
 
-  Stream<QuerySnapshot<Map<String, dynamic>>> passwordsStream(String uid) {
-    return passwordsCollection(uid).snapshots();
+  Stream<QuerySnapshot<Map<String, dynamic>>> assetsStream(String uid) {
+    return assetsCollection(uid).snapshots();
   }
 
-  Future<void> addPassword({
+  Future<void> addAsset({
     required String uid,
     required EncryptedField encryptedTitle,
     required EncryptedField encryptedUsername,
     required EncryptedField encryptedPassword,
   }) async {
-    await passwordsCollection(uid).add({
+    await assetsCollection(uid).add({
       'encryptedTitle': encryptedTitle.encrypText,
       'titleIv': encryptedTitle.ramdomIv,
 
@@ -59,19 +59,17 @@ class FirestoreService {
 
       'encryptedPassword': encryptedPassword.encrypText,
       'passwordIv': encryptedPassword.ramdomIv,
-
-      'encryptionVersion': 2,
     });
   }
 
-  Future<void> updatePassword({
+  Future<void> updateAsset({
     required String uid,
     required String assetId,
     required EncryptedField encryptedTitle,
     required EncryptedField encryptedUsername,
     required EncryptedField encryptedPassword,
   }) async {
-    await passwordsCollection(uid).doc(assetId).update({
+    await assetsCollection(uid).doc(assetId).update({
       'encryptedTitle': encryptedTitle.encrypText,
       'titleIv': encryptedTitle.ramdomIv,
 
@@ -80,16 +78,14 @@ class FirestoreService {
 
       'encryptedPassword': encryptedPassword.encrypText,
       'passwordIv': encryptedPassword.ramdomIv,
-
-      'encryptionVersion': 2,
     });
   }
 
-  Future<Map<String, dynamic>?> getPasswordSecret({
+  Future<Map<String, dynamic>?> getAssetSecret({
     required String uid,
     required String assetId,
   }) async {
-    final snapshot = await passwordsCollection(uid).doc(assetId).get();
+    final snapshot = await assetsCollection(uid).doc(assetId).get();
 
     if (!snapshot.exists) {
       return null;
@@ -98,10 +94,10 @@ class FirestoreService {
     return snapshot.data();
   }
 
-  Future<void> deletePassword({
+  Future<void> deleteAsset({
     required String uid,
     required String assetId,
   }) async {
-    await passwordsCollection(uid).doc(assetId).delete();
+    await assetsCollection(uid).doc(assetId).delete();
   }
 }

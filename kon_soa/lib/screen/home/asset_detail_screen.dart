@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import '../../data/model/password_model.dart';
-import '../../data/repository/password_repository.dart';
+import '../../data/model/asset_model.dart';
+import '../../data/repository/asset_repository.dart';
 import '../../utils/theme.dart';
 import '../widget/custom_button.dart';
 import 'edit_asset_screen.dart';
 
 class AssetDetailScreen extends StatefulWidget {
-  final PasswordModel model;
+  final AssetModel model;
 
   const AssetDetailScreen({super.key, required this.model});
 
@@ -42,7 +42,7 @@ class AssetDetailScreenState extends State<AssetDetailScreen> {
     });
 
     try {
-      final result = await repository.getDecryptedPassword(widget.model.id);
+      final result = await repository.getAssetPassword(widget.model.id);
 
       setState(() {
         decryptedPassword = result;
@@ -76,7 +76,7 @@ class AssetDetailScreenState extends State<AssetDetailScreen> {
       });
 
       try {
-        password = await repository.getDecryptedPassword(widget.model.id);
+        password = await repository.getAssetPassword(widget.model.id);
 
         if (!mounted) return;
 
@@ -112,9 +112,7 @@ class AssetDetailScreenState extends State<AssetDetailScreen> {
   Future<void> openEdit() async {
     await Navigator.push(
       context,
-      MaterialPageRoute(
-        builder: (_) => EditAssetScreen(model: widget.model),
-      ),
+      MaterialPageRoute(builder: (_) => EditAssetScreen(model: widget.model)),
     );
 
     Navigator.pop(context);
@@ -154,7 +152,7 @@ class AssetDetailScreenState extends State<AssetDetailScreen> {
     }
 
     try {
-      await repository.deletePassword(widget.model.id);
+      await repository.deleteAsset(widget.model.id);
     } catch (error) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
