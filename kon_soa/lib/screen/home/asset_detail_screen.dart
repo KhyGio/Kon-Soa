@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import '../../data/model/asset_model.dart';
 import '../../data/repository/asset_repository.dart';
 import '../../utils/theme.dart';
@@ -65,50 +64,6 @@ class AssetDetailScreenState extends State<AssetDetailScreen> {
     }
   }
 
-  Future<void> copyPassword() async {
-    String password;
-
-    if (decryptedPassword != null) {
-      password = decryptedPassword!;
-    } else {
-      setState(() {
-        loadingPassword = true;
-      });
-
-      try {
-        password = await repository.getAssetPassword(widget.model.id);
-
-        if (!mounted) return;
-
-        setState(() {
-          loadingPassword = false;
-        });
-      } catch (error) {
-        setState(() {
-          loadingPassword = false;
-        });
-
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Unable to decrypt password: $error'),
-            backgroundColor: AppTheme.danger,
-          ),
-        );
-
-        return;
-      }
-    }
-
-    await Clipboard.setData(ClipboardData(text: password));
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Password copied'),
-        backgroundColor: AppTheme.primary,
-      ),
-    );
-  }
-
   Future<void> openEdit() async {
     await Navigator.push(
       context,
@@ -153,6 +108,7 @@ class AssetDetailScreenState extends State<AssetDetailScreen> {
 
     try {
       await repository.deleteAsset(widget.model.id);
+      Navigator.pop(context);
     } catch (error) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -310,14 +266,6 @@ class AssetDetailScreenState extends State<AssetDetailScreen> {
                     size: 20,
                   ),
                 ),
-              IconButton(
-                onPressed: loadingPassword ? null : copyPassword,
-                icon: const Icon(
-                  Icons.copy_outlined,
-                  color: AppTheme.textSecondary,
-                  size: 18,
-                ),
-              ),
             ],
           ),
         ],
